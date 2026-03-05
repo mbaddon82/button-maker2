@@ -6,21 +6,26 @@
     <title>Pin Designer Web</title>
     <style>
         body { font-family: sans-serif; display: flex; background: #f0f0f0; margin: 0; }
-        #sidebar { width: 350px; background: #fff; height: 100vh; padding: 20px; border-right: 2px solid #ddd; overflow-y: auto; }
-        #preview { flex-grow: 1; display: flex; justify-content: center; align-items: center; }
+        #sidebar { width: 400px; background: #fff; height: 100vh; padding: 20px; border-right: 2px solid #ddd; overflow-y: auto; }
+        #preview { flex-grow: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
         canvas { background: white; box-shadow: 0 0 20px rgba(0,0,0,0.2); border-radius: 10px; }
-        .control-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 12px; }
-        input[type="text"], select { width: 100%; padding: 8px; box-sizing: border-box; }
-        input[type="range"] { width: 100%; }
-        button { width: 100%; padding: 10px; background: #222; color: white; border: none; cursor: pointer; margin-top: 10px; }
+        .control-group { margin-bottom: 15px; padding: 12px; background: #f9f9f9; border-radius: 5px; border-left: 4px solid #222; }
+        .section-title { font-weight: bold; font-size: 14px; margin-bottom: 10px; color: #222; text-transform: uppercase; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 11px; color: #555; }
+        input[type="text"], select { width: 100%; padding: 8px; box-sizing: border-box; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        input[type="range"] { width: 100%; margin-bottom: 5px; }
+        input[type="color"] { width: 100%; height: 40px; cursor: pointer; border: none; border-radius: 4px; }
+        input[type="file"] { width: 100%; }
+        button { width: 100%; padding: 12px; background: #222; color: white; border: none; cursor: pointer; margin-top: 10px; border-radius: 4px; font-weight: bold; }
         button:hover { background: #444; }
+        hr { border: none; border-top: 1px solid #ddd; margin: 15px 0; }
+        .range-value { display: inline-block; float: right; font-weight: bold; color: #222; }
     </style>
 </head>
 <body>
 
 <div id="sidebar">
-    <h2>Pin Designer</h2>
+    <h2>📌 Pin Designer</h2>
     
     <div class="control-group">
         <label>Pin Size (Inches)</label>
@@ -36,36 +41,82 @@
     <hr>
 
     <div class="control-group">
-        <label>Top Arched Text</label>
+        <div class="section-title">🎨 Circle Background</div>
+        <label>Background Color</label>
+        <input type="color" id="bgColor" value="#d32f2f">
+    </div>
+
+    <hr>
+
+    <div class="control-group">
+        <div class="section-title">🔝 Top Arched Text</div>
+        <label>Text</label>
         <input type="text" id="topText" value="TOP ARCHED TEXT">
+        
+        <label>Font Size: <span class="range-value" id="topFontSizeValue">30</span></label>
+        <input type="range" id="topFontSize" min="10" max="60" value="30">
+        
+        <label>Color</label>
+        <input type="color" id="topTextColor" value="#ffffff">
+        
+        <label><input type="checkbox" id="topCenterH" checked> Center Horizontally</label>
+        <label><input type="checkbox" id="topCenterV"> Center Vertically</label>
     </div>
 
-    <div class="control-group">
-        <label>Center Line 1</label>
-        <input type="text" id="center1" value="SELECT SIZE FIRST!">
-    </div>
+    <hr>
 
     <div class="control-group">
-        <label>Bottom Arched Text</label>
+        <div class="section-title">📍 Center Text</div>
+        <label>Text</label>
+        <input type="text" id="center1" value="CENTER TEXT">
+        
+        <label>Font Size: <span class="range-value" id="centerFontSizeValue">30</span></label>
+        <input type="range" id="centerFontSize" min="10" max="60" value="30">
+        
+        <label>Color</label>
+        <input type="color" id="centerTextColor" value="#ffffff">
+        
+        <label><input type="checkbox" id="centerCenterH" checked> Center Horizontally</label>
+        <label><input type="checkbox" id="centerCenterV" checked> Center Vertically</label>
+    </div>
+
+    <hr>
+
+    <div class="control-group">
+        <div class="section-title">🔽 Bottom Arched Text</div>
+        <label>Text</label>
         <input type="text" id="bottomText" value="BOTTOM ARCHED TEXT">
+        
+        <label>Font Size: <span class="range-value" id="bottomFontSizeValue">30</span></label>
+        <input type="range" id="bottomFontSize" min="10" max="60" value="30">
+        
+        <label>Color</label>
+        <input type="color" id="bottomTextColor" value="#ffffff">
+        
+        <label><input type="checkbox" id="bottomCenterH" checked> Center Horizontally</label>
+        <label><input type="checkbox" id="bottomCenterV"> Center Vertically</label>
     </div>
 
-    <div class="control-group">
-        <label>Text Color</label>
-        <input type="color" id="textColor" value="#ffffff">
-    </div>
+    <hr>
 
     <div class="control-group">
-        <label>Font Size</label>
-        <input type="range" id="fontSize" min="10" max="60" value="30">
-    </div>
-
-    <div class="control-group">
+        <div class="section-title">🖼️ Image</div>
         <label>Upload Image</label>
         <input type="file" id="imageUpload" accept="image/*">
+        
+        <label>Image Size: <span class="range-value" id="imageSizeValue">100</span>%</label>
+        <input type="range" id="imageSize" min="10" max="200" value="100">
+        
+        <label>Image Stretch: <span class="range-value" id="imageStretchValue">100</span>%</label>
+        <input type="range" id="imageStretch" min="50" max="150" value="100">
+        
+        <label><input type="checkbox" id="imageCenterH" checked> Center Horizontally</label>
+        <label><input type="checkbox" id="imageCenterV" checked> Center Vertically</label>
     </div>
 
-    <button onclick="downloadPin()">Download Design</button>
+    <hr>
+
+    <button onclick="downloadPin()">⬇️ Download Design</button>
 </div>
 
 <div id="preview">
@@ -75,12 +126,44 @@
 <script>
     const canvas = document.getElementById('pinCanvas');
     const ctx = canvas.getContext('2d');
-    const inputs = ['topText', 'center1', 'bottomText', 'fontSize', 'textColor', 'pinSize'];
     
     let uploadedImage = null;
 
-    // Listen for changes
-    inputs.forEach(id => document.getElementById(id).addEventListener('input', draw));
+    // Update range slider values
+    document.getElementById('topFontSize').addEventListener('input', function() {
+        document.getElementById('topFontSizeValue').textContent = this.value;
+        draw();
+    });
+    document.getElementById('centerFontSize').addEventListener('input', function() {
+        document.getElementById('centerFontSizeValue').textContent = this.value;
+        draw();
+    });
+    document.getElementById('bottomFontSize').addEventListener('input', function() {
+        document.getElementById('bottomFontSizeValue').textContent = this.value;
+        draw();
+    });
+    document.getElementById('imageSize').addEventListener('input', function() {
+        document.getElementById('imageSizeValue').textContent = this.value;
+        draw();
+    });
+    document.getElementById('imageStretch').addEventListener('input', function() {
+        document.getElementById('imageStretchValue').textContent = this.value;
+        draw();
+    });
+
+    // Listen for all input changes
+    const allInputs = ['topText', 'topFontSize', 'topTextColor', 'topCenterH', 'topCenterV',
+                       'center1', 'centerFontSize', 'centerTextColor', 'centerCenterH', 'centerCenterV',
+                       'bottomText', 'bottomFontSize', 'bottomTextColor', 'bottomCenterH', 'bottomCenterV',
+                       'bgColor', 'pinSize', 'imageSize', 'imageStretch', 'imageCenterH', 'imageCenterV'];
+    
+    allInputs.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('input', draw);
+            element.addEventListener('change', draw);
+        }
+    });
     
     document.getElementById('imageUpload').addEventListener('change', function(e) {
         const reader = new FileReader();
@@ -92,15 +175,39 @@
             }
             img.src = event.target.result;
         }
-        reader.readAsDataURL(e.target.files[0]);
+        if (e.target.files[0]) {
+            reader.readAsDataURL(e.target.files[0]);
+        }
     });
 
     function draw() {
         const topText = document.getElementById('topText').value;
-        const center1 = document.getElementById('center1').value;
+        const centerText = document.getElementById('center1').value;
         const bottomText = document.getElementById('bottomText').value;
-        const fontSize = document.getElementById('fontSize').value;
-        const textColor = document.getElementById('textColor').value;
+        
+        const topFontSize = parseInt(document.getElementById('topFontSize').value);
+        const centerFontSize = parseInt(document.getElementById('centerFontSize').value);
+        const bottomFontSize = parseInt(document.getElementById('bottomFontSize').value);
+        
+        const topTextColor = document.getElementById('topTextColor').value;
+        const centerTextColor = document.getElementById('centerTextColor').value;
+        const bottomTextColor = document.getElementById('bottomTextColor').value;
+        
+        const bgColor = document.getElementById('bgColor').value;
+        
+        const topCenterH = document.getElementById('topCenterH').checked;
+        const topCenterV = document.getElementById('topCenterV').checked;
+        
+        const centerCenterH = document.getElementById('centerCenterH').checked;
+        const centerCenterV = document.getElementById('centerCenterV').checked;
+        
+        const bottomCenterH = document.getElementById('bottomCenterH').checked;
+        const bottomCenterV = document.getElementById('bottomCenterV').checked;
+        
+        const imageSize = parseInt(document.getElementById('imageSize').value);
+        const imageStretch = parseInt(document.getElementById('imageStretch').value);
+        const imageCenterH = document.getElementById('imageCenterH').checked;
+        const imageCenterV = document.getElementById('imageCenterV').checked;
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         const cx = 300;
@@ -113,10 +220,10 @@
         ctx.fillStyle = "black";
         ctx.fill();
 
-        // 2. Draw Inner Circle (Red)
+        // 2. Draw Inner Circle (Custom Background Color)
         ctx.beginPath();
         ctx.arc(cx, cy, radius * 0.7, 0, Math.PI * 2);
-        ctx.fillStyle = "#d32f2f";
+        ctx.fillStyle = bgColor;
         ctx.fill();
 
         // 3. Draw Uploaded Image (if exists)
@@ -125,40 +232,55 @@
             ctx.beginPath();
             ctx.arc(cx, cy, radius * 0.6, 0, Math.PI * 2);
             ctx.clip();
-            ctx.drawImage(uploadedImage, cx - 100, cy - 100, 200, 200);
+            
+            const imgWidth = (200 * imageSize) / 100;
+            const imgHeight = (200 * imageSize * imageStretch) / 100 / 100;
+            const imgX = imageCenterH ? cx - imgWidth / 2 : cx - 100;
+            const imgY = imageCenterV ? cy - imgHeight / 2 : cy - 100;
+            
+            ctx.drawImage(uploadedImage, imgX, imgY, imgWidth, imgHeight);
             ctx.restore();
         }
 
-        // 4. Setup Text
-        ctx.fillStyle = textColor;
-        ctx.font = `bold ${fontSize}px Arial`;
-        ctx.textAlign = "center";
+        // Setup Text
+        ctx.fillStyle = topTextColor;
 
         // 5. Arched Top Text
-        drawArchedText(topText, cx, cy, radius - 30, Math.PI * 1.5, false);
+        ctx.font = `bold ${topFontSize}px Arial`;
+        drawArchedText(topText, cx, cy, radius - 30, Math.PI * 1.5, false, topFontSize, topCenterH);
 
         // 6. Arched Bottom Text
-        drawArchedText(bottomText, cx, cy, radius - 30, Math.PI * 0.5, true);
+        ctx.font = `bold ${bottomFontSize}px Arial`;
+        drawArchedText(bottomText, cx, cy, radius - 30, Math.PI * 0.5, true, bottomFontSize, bottomCenterH);
 
         // 7. Center Text
-        ctx.fillText(center1, cx, cy + 10);
+        ctx.fillStyle = centerTextColor;
+        ctx.font = `bold ${centerFontSize}px Arial`;
+        ctx.textAlign = centerCenterH ? "center" : "left";
+        const centerTextX = centerCenterH ? cx : cx - 50;
+        const centerTextY = centerCenterV ? cy : cy + 10;
+        ctx.fillText(centerText, centerTextX, centerTextY);
     }
 
-    function drawArchedText(text, cx, cy, radius, startAngle, isBottom) {
+    function drawArchedText(text, cx, cy, radius, startAngle, isBottom, fontSize, centerH) {
         const characters = text.split("");
-        const anglePerChar = 0.15; // Adjust spacing
+        const anglePerChar = 0.15;
         
         ctx.save();
         ctx.translate(cx, cy);
         
-        // Offset to center the string
-        let currentAngle = startAngle - (characters.length * anglePerChar) / 2;
+        // Calculate arc to center text
+        let currentAngle = startAngle;
+        if (centerH) {
+            currentAngle = startAngle - (characters.length * anglePerChar) / 2;
+        }
 
         characters.forEach(char => {
             ctx.save();
             ctx.rotate(currentAngle);
             ctx.translate(0, isBottom ? radius : -radius);
-            if (isBottom) ctx.rotate(Math.PI); // Flip text for bottom arch
+            if (isBottom) ctx.rotate(Math.PI);
+            ctx.textAlign = "center";
             ctx.fillText(char, 0, 0);
             ctx.restore();
             currentAngle += anglePerChar;
