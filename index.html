@@ -366,8 +366,7 @@
         if (element) {
             element.addEventListener('input', function() {
                 const valueId = id + 'Value';
-                const unit = id.includes('Rotate') ? '°' : (id.includes('Transparency') ? '%' : (id.includes('Stretch') ? '%' : '%'));
-                document.getElementById(valueId).textContent = this.value + (unit === '°' ? '°' : '');
+                document.getElementById(valueId).textContent = this.value;
                 draw();
             });
         }
@@ -442,11 +441,9 @@
         const bgColor = document.getElementById('bgColor').value;
         
         const topCenterH = document.getElementById('topCenterH').checked;
-        const topCenterV = document.getElementById('topCenterV').checked;
         const centerCenterH = document.getElementById('centerCenterH').checked;
         const centerCenterV = document.getElementById('centerCenterV').checked;
         const bottomCenterH = document.getElementById('bottomCenterH').checked;
-        const bottomCenterV = document.getElementById('bottomCenterV').checked;
         
         const imageSize = parseInt(document.getElementById('imageSize').value);
         const imageRotate = parseInt(document.getElementById('imageRotate').value);
@@ -494,17 +491,17 @@
             ctx.restore();
         }
 
-        // 4. Draw Top Arched Text
+        // 4. Draw Top Arched Text (at the TOP of circle)
         ctx.globalAlpha = topTransparency;
         ctx.fillStyle = topTextColor;
         ctx.font = getFont(topFont, topFontSize, 'top');
-        drawArchedText(topText, cx, cy, radius - 30, Math.PI * 1.5, false, topCenterH, topRotate, textStyles.top);
+        drawArchedText(topText, cx, cy, radius - 30, true, topCenterH, topRotate, textStyles.top, topFontSize, topFont);
 
-        // 5. Draw Bottom Arched Text
+        // 5. Draw Bottom Arched Text (at the BOTTOM of circle)
         ctx.globalAlpha = bottomTransparency;
         ctx.fillStyle = bottomTextColor;
         ctx.font = getFont(bottomFont, bottomFontSize, 'bottom');
-        drawArchedText(bottomText, cx, cy, radius - 30, Math.PI * 0.5, true, bottomCenterH, bottomRotate, textStyles.bottom);
+        drawArchedText(bottomText, cx, cy, radius - 30, false, bottomCenterH, bottomRotate, textStyles.bottom, bottomFontSize, bottomFont);
 
         // 6. Draw Center Text
         ctx.globalAlpha = centerTransparency;
@@ -539,25 +536,30 @@
         ctx.globalAlpha = 1.0;
     }
 
-    function drawArchedText(text, cx, cy, radius, startAngle, isBottom, centerH, rotate, styles) {
+    function drawArchedText(text, cx, cy, radius, isTop, centerH, rotate, styles, fontSize, fontName) {
         const characters = text.split("");
-        const anglePerChar = 0.15;
+        const anglePerChar = 0.12;
         
         ctx.save();
         ctx.translate(cx, cy);
         ctx.rotate((rotate * Math.PI) / 180);
         
-        let currentAngle = startAngle;
+        // Calculate starting angle for top/bottom centering
+        const totalAngle = characters.length * anglePerChar;
+        let startAngle = isTop ? -Math.PI / 2 : Math.PI / 2; // Top at -90°, Bottom at 90°
+        
         if (centerH) {
-            currentAngle = startAngle - (characters.length * anglePerChar) / 2;
+            startAngle -= totalAngle / 2;
         }
 
-        characters.forEach(char => {
+        characters.forEach((char, index) => {
+            const angle = startAngle + (index * anglePerChar);
+            
             ctx.save();
-            ctx.rotate(currentAngle);
-            ctx.translate(0, isBottom ? radius : -radius);
-            if (isBottom) ctx.rotate(Math.PI);
+            ctx.translate(Math.cos(angle) * radius, Math.sin(angle) * radius);
+            ctx.rotate(angle + (isTop ? 0 : Math.PI));
             ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
             
             // Draw shadow
             if (styles.shadow) {
@@ -565,7 +567,10 @@
                 ctx.fillText(char, 2, 2);
             }
             
-            ctx.fillStyle = document.getElementById(isBottom ? 'bottomTextColor' : 'topTextColor').value;
+            // Get the color
+            const colorInput = isTop ? 'topTextColor' : 'bottomTextColor';
+            ctx.fillStyle = document.getElementById(colorInput).value;
+            ctx.font = `${styles.italic ? 'italic ' : ''}bold ${fontSize}px ${fontName}`;
             ctx.fillText(char, 0, 0);
             
             // Draw outline
@@ -576,7 +581,6 @@
             }
             
             ctx.restore();
-            currentAngle += anglePerChar;
         });
         ctx.restore();
     }
@@ -590,7 +594,6 @@
             topRotate: document.getElementById('topRotate').value,
             topTransparency: document.getElementById('topTransparency').value,
             topCenterH: document.getElementById('topCenterH').checked,
-            topCenterV: document.getElementById('topCenterV').checked,
             
             center1: document.getElementById('center1').value,
             centerFont: document.getElementById('centerFont').value,
@@ -608,7 +611,6 @@
             bottomRotate: document.getElementById('bottomRotate').value,
             bottomTransparency: document.getElementById('bottomTransparency').value,
             bottomCenterH: document.getElementById('bottomCenterH').checked,
-            bottomCenterV: document.getElementById('bottomCenterV').checked,
             
             bgColor: document.getElementById('bgColor').value,
             pinSize: document.getElementById('pinSize').value,
@@ -641,7 +643,6 @@
         document.getElementById('topRotate').value = design.topRotate;
         document.getElementById('topTransparency').value = design.topTransparency;
         document.getElementById('topCenterH').checked = design.topCenterH;
-        document.getElementById('topCenterV').checked = design.topCenterV;
         
         document.getElementById('center1').value = design.center1;
         document.getElementById('centerFont').value = design.centerFont;
@@ -659,7 +660,6 @@
         document.getElementById('bottomRotate').value = design.bottomRotate;
         document.getElementById('bottomTransparency').value = design.bottomTransparency;
         document.getElementById('bottomCenterH').checked = design.bottomCenterH;
-        document.getElementById('bottomCenterV').checked = design.bottomCenterV;
         
         document.getElementById('bgColor').value = design.bgColor;
         document.getElementById('pinSize').value = design.pinSize;
