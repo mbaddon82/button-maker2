@@ -604,7 +604,7 @@
 
         // 2. Draw Inner Circle (Custom Background Color)
         ctx.beginPath();
-        ctx.arc(cx, cy, radius * 0.7, 0, Math.PI * 2);
+        ctx.arc(cx, cy, radius * 0.9, 0, Math.PI * 2);
         ctx.fillStyle = bgColor;
         ctx.fill();
 
@@ -693,13 +693,20 @@
         let startAngle;
         
         if (isTop) {
+            // Top text: start from left (π) and go right
             startAngle = centerH ? Math.PI - (totalAngle / 2) : Math.PI;
         } else {
-            startAngle = centerH ? -totalAngle / 2 : 0;
+            // Bottom text: start from right (0) and go left
+            startAngle = centerH ? totalAngle / 2 : 0;
         }
 
         characters.forEach((char, index) => {
-            const angle = startAngle + (index * anglePerChar);
+            let angle;
+            if (isTop) {
+                angle = startAngle + (index * anglePerChar);
+            } else {
+                angle = startAngle - (index * anglePerChar);
+            }
             
             ctx.save();
             ctx.translate(Math.cos(angle) * radius, Math.sin(angle) * radius);
@@ -847,8 +854,8 @@
         const pinSizePixels = pinSizeInches * dpi;
         
         const printCanvas = document.createElement('canvas');
-        const pageWidth = 8.5 * dpi;
-        const pageHeight = 11 * dpi;
+        const pageWidth = 8.5 * dpi;  // 8.5 inches
+        const pageHeight = 11 * dpi;   // 11 inches
         
         printCanvas.width = pageWidth;
         printCanvas.height = pageHeight;
@@ -857,20 +864,27 @@
         printCtx.fillStyle = 'white';
         printCtx.fillRect(0, 0, pageWidth, pageHeight);
         
-        const margin = 0.5 * dpi;
+        const margin = 0.3 * dpi;  // 0.3 inch margins
+        const spacingX = pinSizePixels + (0.2 * dpi);  // 0.2 inch spacing between pins
+        const spacingY = pinSizePixels + (0.2 * dpi);  // 0.2 inch spacing between pins
+        
         const availableWidth = pageWidth - (margin * 2);
         const availableHeight = pageHeight - (margin * 2);
         
-        const pinsPerRow = Math.floor(availableWidth / (pinSizePixels + 20));
-        const pinsPerCol = Math.floor(availableHeight / (pinSizePixels + 20));
+        // Calculate how many pins fit
+        const pinsPerRow = Math.floor(availableWidth / spacingX);
+        const pinsPerCol = Math.floor(availableHeight / spacingY);
         
-        const spacingX = availableWidth / pinsPerRow;
-        const spacingY = availableHeight / pinsPerCol;
+        // Center the pins on the page
+        const totalWidthUsed = pinsPerRow * spacingX;
+        const totalHeightUsed = pinsPerCol * spacingY;
+        const startX = margin + (availableWidth - totalWidthUsed) / 2;
+        const startY = margin + (availableHeight - totalHeightUsed) / 2;
         
         for (let row = 0; row < pinsPerCol; row++) {
             for (let col = 0; col < pinsPerRow; col++) {
-                const x = margin + (col * spacingX) + (spacingX / 2);
-                const y = margin + (row * spacingY) + (spacingY / 2);
+                const x = startX + (col * spacingX) + (pinSizePixels / 2);
+                const y = startY + (row * spacingY) + (pinSizePixels / 2);
                 
                 drawPinToPrintCanvas(printCtx, x, y, pinSizePixels / 2);
             }
@@ -946,7 +960,7 @@
 
         // 2. Draw Inner Circle (Custom Background Color)
         printCtx.beginPath();
-        printCtx.arc(centerX, centerY, radius * 0.7, 0, Math.PI * 2);
+        printCtx.arc(centerX, centerY, radius * 0.9, 0, Math.PI * 2);
         printCtx.fillStyle = bgColor;
         printCtx.fill();
 
@@ -1035,13 +1049,20 @@
         let startAngle;
         
         if (isTop) {
+            // Top text: start from left (π) and go right
             startAngle = centerH ? Math.PI - (totalAngle / 2) : Math.PI;
         } else {
-            startAngle = centerH ? -totalAngle / 2 : 0;
+            // Bottom text: start from right (0) and go left
+            startAngle = centerH ? totalAngle / 2 : 0;
         }
 
         characters.forEach((char, index) => {
-            const angle = startAngle + (index * anglePerChar);
+            let angle;
+            if (isTop) {
+                angle = startAngle + (index * anglePerChar);
+            } else {
+                angle = startAngle - (index * anglePerChar);
+            }
             
             printCtx.save();
             printCtx.translate(Math.cos(angle) * radius, Math.sin(angle) * radius);
