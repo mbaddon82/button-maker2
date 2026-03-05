@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pin Designer Web</title>
+    <style>
+        body { font-family: sans-serif; display: flex; background: #f0f0f0; margin: 0; }
+        #sidebar { width: 350px; background: #fff; height: 100vh; padding: 20px; border-right: 2px solid #ddd; overflow-y: auto; }
+        #preview { flex-grow: 1; display: flex; justify-content: center; align-items: center; }
+        canvas { background: white; box-shadow: 0 0 20px rgba(0,0,0,0.2); border-radius: 10px; }
+        .control-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 12px; }
+        input[type="text"], select { width: 100%; padding: 8px; box-sizing: border-box; }
+        input[type="range"] { width: 100%; }
+        button { width: 100%; padding: 10px; background: #222; color: white; border: none; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #444; }
+    </style>
+</head>
+<body>
+
+<div id="sidebar">
+    <h2>Pin Designer</h2>
+    
+    <div class="control-group">
+        <label>Pin Size (Inches)</label>
+        <select id="pinSize">
+            <option value="1">1"</option>
+            <option value="1.25">1.25"</option>
+            <option value="2.25" selected>2.25"</option>
+            <option value="3">3"</option>
+            <option value="6">6"</option>
+        </select>
+    </div>
+
+    <hr>
+
+    <div class="control-group">
+        <label>Top Arched Text</label>
+        <input type="text" id="topText" value="TOP ARCHED TEXT">
+    </div>
+
+    <div class="control-group">
+        <label>Center Line 1</label>
+        <input type="text" id="center1" value="SELECT SIZE FIRST!">
+    </div>
+
+    <div class="control-group">
+        <label>Bottom Arched Text</label>
+        <input type="text" id="bottomText" value="BOTTOM ARCHED TEXT">
+    </div>
+
+    <div class="control-group">
+        <label>Text Color</label>
+        <input type="color" id="textColor" value="#ffffff">
+    </div>
+
+    <div class="control-group">
+        <label>Font Size</label>
+        <input type="range" id="fontSize" min="10" max="60" value="30">
+    </div>
+
+    <div class="control-group">
+        <label>Upload Image</label>
+        <input type="file" id="imageUpload" accept="image/*">
+    </div>
+
+    <button onclick="downloadPin()">Download Design</button>
+</div>
+
+<div id="preview">
+    <canvas id="pinCanvas" width="600" height="600"></canvas>
+</div>
+
+<script>
+    const canvas = document.getElementById('pinCanvas');
+    const ctx = canvas.getContext('2d');
+    const inputs = ['topText', 'center1', 'bottomText', 'fontSize', 'textColor', 'pinSize'];
+    
+    let uploadedImage = null;
+
+    // Listen for changes
+    inputs.forEach(id => document.getElementById(id).addEventListener('input', draw));
+    
+    document.getElementById('imageUpload').addEventListener('change', function(e) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const img = new Image();
+            img.onload = function() {
+                uploadedImage = img;
+                draw();
+            }
+            img.src = event.target.result;
+        }
+        reader.readAsDataURL(e.target.files[0]);
+    });
+
+    function draw() {
+        const topText = document.getElementById('topText').value;
+        const center1 = document.getElementById('center1').value;
+        const bottomText = document.getElementById('bottomText').value;
+        const fontSize = document.getElementById('fontSize').value;
+        const textColor = document.getElementById('textColor').value;
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const cx = 300;
+        const cy = 300;
+        const radius = 250;
+
+        // 1. Draw Outer Circle (Black)
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.fillStyle = "black";
+        ctx.fill();
+
+        // 2. Draw Inner Circle (Red)
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius * 0.7, 0, Math.PI * 2);
+        ctx.fillStyle = "#d32f2f";
+        ctx.fill();
+
+        // 3. Draw Uploaded Image (if exists)
+        if (uploadedImage) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius * 0.6, 0, Math.PI * 2);
+            ctx.clip();
+            ctx.drawImage(uploadedImage, cx - 100, cy - 100, 200, 200);
+            ctx.restore();
+        }
+
+        // 4. Setup Text
+        ctx.fillStyle = textColor;
+        ctx.font = `bold ${fontSize}px Arial`;
+        ctx.textAlign = "center";
+
+        // 5. Arched Top Text
+        drawArchedText(topText, cx, cy, radius - 30, Math.PI * 1.5, false);
+
+        // 6. Arched Bottom Text
+        drawArchedText(bottomText, cx, cy, radius - 30, Math.PI * 0.5, true);
+
+        // 7. Center Text
+        ctx.fillText(center1, cx, cy + 10);
+    }
+
+    function drawArchedText(text, cx, cy, radius, startAngle, isBottom) {
+        const characters = text.split("");
+        const anglePerChar = 0.15; // Adjust spacing
+        
+        ctx.save();
+        ctx.translate(cx, cy);
+        
+        // Offset to center the string
+        let currentAngle = startAngle - (characters.length * anglePerChar) / 2;
+
+        characters.forEach(char => {
+            ctx.save();
+            ctx.rotate(currentAngle);
+            ctx.translate(0, isBottom ? radius : -radius);
+            if (isBottom) ctx.rotate(Math.PI); // Flip text for bottom arch
+            ctx.fillText(char, 0, 0);
+            ctx.restore();
+            currentAngle += anglePerChar;
+        });
+        ctx.restore();
+    }
+
+    function downloadPin() {
+        const link = document.createElement('a');
+        link.download = 'my-pin-design.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    }
+
+    draw(); // Initial draw
+</script>
+
+</body>
+</html>
