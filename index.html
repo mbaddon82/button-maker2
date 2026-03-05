@@ -5,29 +5,171 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pin Designer Web</title>
     <style>
-        body { font-family: sans-serif; display: flex; background: #f0f0f0; margin: 0; }
-        #sidebar { width: 400px; background: #fff; height: 100vh; padding: 20px; border-right: 2px solid #ddd; overflow-y: auto; }
-        #preview { flex-grow: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        canvas { background: white; box-shadow: 0 0 20px rgba(0,0,0,0.2); border-radius: 10px; }
-        .control-group { margin-bottom: 15px; padding: 12px; background: #f9f9f9; border-radius: 5px; border-left: 4px solid #222; }
-        .section-title { font-weight: bold; font-size: 14px; margin-bottom: 10px; color: #222; text-transform: uppercase; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 11px; color: #555; }
-        input[type="text"], select { width: 100%; padding: 8px; box-sizing: border-box; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        input[type="range"] { width: 100%; margin-bottom: 5px; }
-        input[type="color"] { width: 100%; height: 40px; cursor: pointer; border: none; border-radius: 4px; }
-        input[type="file"] { width: 100%; }
-        button { width: 100%; padding: 12px; background: #222; color: white; border: none; cursor: pointer; margin-top: 10px; border-radius: 4px; font-weight: bold; }
-        button:hover { background: #444; }
-        hr { border: none; border-top: 1px solid #ddd; margin: 15px 0; }
-        .range-value { display: inline-block; float: right; font-weight: bold; color: #222; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; display: flex; background: #f0f0f0; height: 100vh; }
+        
+        #preview { 
+            flex-grow: 1; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 20px;
+            background: #e8e8e8;
+        }
+        canvas { 
+            background: white; 
+            box-shadow: 0 0 30px rgba(0,0,0,0.3); 
+            border-radius: 10px; 
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        #sidebar { 
+            width: 350px; 
+            background: #fff; 
+            height: 100vh; 
+            overflow-y: auto; 
+            border-right: 2px solid #ddd;
+            padding: 15px;
+        }
+        
+        .control-group { 
+            margin-bottom: 15px; 
+            padding: 12px; 
+            background: #f5f5f5; 
+            border-radius: 5px; 
+            border-left: 4px solid #333;
+        }
+        
+        .section-title { 
+            font-weight: bold; 
+            font-size: 13px; 
+            margin-bottom: 10px; 
+            color: #333; 
+            text-transform: uppercase;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+        }
+        
+        label { 
+            display: block; 
+            font-weight: bold; 
+            margin: 8px 0 4px 0; 
+            font-size: 11px; 
+            color: #555; 
+        }
+        
+        input[type="text"], 
+        input[type="number"],
+        select { 
+            width: 100%; 
+            padding: 8px; 
+            margin-bottom: 8px;
+            border: 1px solid #ccc; 
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        input[type="range"] { 
+            width: 100%; 
+            margin: 8px 0;
+        }
+        
+        input[type="color"] { 
+            width: 100%; 
+            height: 35px; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 4px;
+        }
+        
+        input[type="file"] { 
+            width: 100%;
+            padding: 6px;
+            font-size: 11px;
+        }
+        
+        button { 
+            width: 100%; 
+            padding: 10px; 
+            background: #333; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            margin-top: 8px;
+            border-radius: 4px; 
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        button:hover { background: #555; }
+        
+        .button-row {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .button-row button {
+            flex: 1;
+            margin-top: 0;
+            padding: 8px;
+            font-size: 11px;
+        }
+        
+        .range-value { 
+            display: inline-block; 
+            float: right; 
+            font-weight: bold; 
+            color: #333;
+            font-size: 11px;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+            margin: 6px 0;
+        }
+        
+        .checkbox-label input {
+            margin-right: 8px;
+            width: auto;
+        }
+        
+        hr { border: none; border-top: 1px solid #ddd; margin: 12px 0; }
+        
+        h1 { font-size: 18px; margin-bottom: 15px; color: #333; }
+        
+        .top-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .top-buttons button {
+            flex: 1;
+            margin: 0;
+            padding: 8px;
+            font-size: 11px;
+        }
     </style>
 </head>
 <body>
 
+<div id="preview">
+    <canvas id="pinCanvas" width="600" height="600"></canvas>
+</div>
+
 <div id="sidebar">
-    <h2>📌 Pin Designer</h2>
+    <h1>📌 Pin Designer</h1>
     
+    <div class="top-buttons">
+        <button onclick="saveDesign()">💾 Save Design</button>
+        <button onclick="loadDesign()">📂 Load Design</button>
+    </div>
+
     <div class="control-group">
+        <div class="section-title">⚙️ Pin Settings</div>
         <label>Pin Size (Inches)</label>
         <select id="pinSize">
             <option value="1">1"</option>
@@ -36,12 +178,7 @@
             <option value="3">3"</option>
             <option value="6">6"</option>
         </select>
-    </div>
-
-    <hr>
-
-    <div class="control-group">
-        <div class="section-title">🎨 Circle Background</div>
+        
         <label>Background Color</label>
         <input type="color" id="bgColor" value="#d32f2f">
     </div>
@@ -53,14 +190,39 @@
         <label>Text</label>
         <input type="text" id="topText" value="TOP ARCHED TEXT">
         
-        <label>Font Size: <span class="range-value" id="topFontSizeValue">30</span></label>
-        <input type="range" id="topFontSize" min="10" max="60" value="30">
+        <label>Font</label>
+        <select id="topFont">
+            <option value="Arial">Arial</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Verdana">Verdana</option>
+        </select>
+        
+        <label>Size: <span class="range-value" id="topFontSizeValue">30</span></label>
+        <input type="range" id="topFontSize" min="10" max="80" value="30">
         
         <label>Color</label>
         <input type="color" id="topTextColor" value="#ffffff">
         
-        <label><input type="checkbox" id="topCenterH" checked> Center Horizontally</label>
-        <label><input type="checkbox" id="topCenterV"> Center Vertically</label>
+        <label>Rotation: <span class="range-value" id="topRotateValue">0</span>°</label>
+        <input type="range" id="topRotate" min="-45" max="45" value="0">
+        
+        <label>Transparency: <span class="range-value" id="topTransparencyValue">100</span>%</label>
+        <input type="range" id="topTransparency" min="0" max="100" value="100">
+        
+        <label class="checkbox-label">
+            <input type="checkbox" id="topCenterH" checked> Center Horizontally
+        </label>
+        <label class="checkbox-label">
+            <input type="checkbox" id="topCenterV"> Center Vertically
+        </label>
+        
+        <div class="button-row">
+            <button onclick="toggleTextStyle('top', 'italic')">Italic</button>
+            <button onclick="toggleTextStyle('top', 'shadow')">Shadow</button>
+            <button onclick="toggleTextStyle('top', 'outline')">Outline</button>
+        </div>
     </div>
 
     <hr>
@@ -70,14 +232,39 @@
         <label>Text</label>
         <input type="text" id="center1" value="CENTER TEXT">
         
-        <label>Font Size: <span class="range-value" id="centerFontSizeValue">30</span></label>
-        <input type="range" id="centerFontSize" min="10" max="60" value="30">
+        <label>Font</label>
+        <select id="centerFont">
+            <option value="Arial">Arial</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Verdana">Verdana</option>
+        </select>
+        
+        <label>Size: <span class="range-value" id="centerFontSizeValue">30</span></label>
+        <input type="range" id="centerFontSize" min="10" max="80" value="30">
         
         <label>Color</label>
         <input type="color" id="centerTextColor" value="#ffffff">
         
-        <label><input type="checkbox" id="centerCenterH" checked> Center Horizontally</label>
-        <label><input type="checkbox" id="centerCenterV" checked> Center Vertically</label>
+        <label>Rotation: <span class="range-value" id="centerRotateValue">0</span>°</label>
+        <input type="range" id="centerRotate" min="-45" max="45" value="0">
+        
+        <label>Transparency: <span class="range-value" id="centerTransparencyValue">100</span>%</label>
+        <input type="range" id="centerTransparency" min="0" max="100" value="100">
+        
+        <label class="checkbox-label">
+            <input type="checkbox" id="centerCenterH" checked> Center Horizontally
+        </label>
+        <label class="checkbox-label">
+            <input type="checkbox" id="centerCenterV" checked> Center Vertically
+        </label>
+        
+        <div class="button-row">
+            <button onclick="toggleTextStyle('center', 'italic')">Italic</button>
+            <button onclick="toggleTextStyle('center', 'shadow')">Shadow</button>
+            <button onclick="toggleTextStyle('center', 'outline')">Outline</button>
+        </div>
     </div>
 
     <hr>
@@ -87,14 +274,39 @@
         <label>Text</label>
         <input type="text" id="bottomText" value="BOTTOM ARCHED TEXT">
         
-        <label>Font Size: <span class="range-value" id="bottomFontSizeValue">30</span></label>
-        <input type="range" id="bottomFontSize" min="10" max="60" value="30">
+        <label>Font</label>
+        <select id="bottomFont">
+            <option value="Arial">Arial</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Verdana">Verdana</option>
+        </select>
+        
+        <label>Size: <span class="range-value" id="bottomFontSizeValue">30</span></label>
+        <input type="range" id="bottomFontSize" min="10" max="80" value="30">
         
         <label>Color</label>
         <input type="color" id="bottomTextColor" value="#ffffff">
         
-        <label><input type="checkbox" id="bottomCenterH" checked> Center Horizontally</label>
-        <label><input type="checkbox" id="bottomCenterV"> Center Vertically</label>
+        <label>Rotation: <span class="range-value" id="bottomRotateValue">0</span>°</label>
+        <input type="range" id="bottomRotate" min="-45" max="45" value="0">
+        
+        <label>Transparency: <span class="range-value" id="bottomTransparencyValue">100</span>%</label>
+        <input type="range" id="bottomTransparency" min="0" max="100" value="100">
+        
+        <label class="checkbox-label">
+            <input type="checkbox" id="bottomCenterH" checked> Center Horizontally
+        </label>
+        <label class="checkbox-label">
+            <input type="checkbox" id="bottomCenterV"> Center Vertically
+        </label>
+        
+        <div class="button-row">
+            <button onclick="toggleTextStyle('bottom', 'italic')">Italic</button>
+            <button onclick="toggleTextStyle('bottom', 'shadow')">Shadow</button>
+            <button onclick="toggleTextStyle('bottom', 'outline')">Outline</button>
+        </div>
     </div>
 
     <hr>
@@ -104,23 +316,30 @@
         <label>Upload Image</label>
         <input type="file" id="imageUpload" accept="image/*">
         
-        <label>Image Size: <span class="range-value" id="imageSizeValue">100</span>%</label>
+        <label>Size: <span class="range-value" id="imageSizeValue">100</span>%</label>
         <input type="range" id="imageSize" min="10" max="200" value="100">
         
-        <label>Image Stretch: <span class="range-value" id="imageStretchValue">100</span>%</label>
+        <label>Rotation: <span class="range-value" id="imageRotateValue">0</span>°</label>
+        <input type="range" id="imageRotate" min="0" max="360" value="0">
+        
+        <label>Stretch: <span class="range-value" id="imageStretchValue">100</span>%</label>
         <input type="range" id="imageStretch" min="50" max="150" value="100">
         
-        <label><input type="checkbox" id="imageCenterH" checked> Center Horizontally</label>
-        <label><input type="checkbox" id="imageCenterV" checked> Center Vertically</label>
+        <label>Transparency: <span class="range-value" id="imageTransparencyValue">100</span>%</label>
+        <input type="range" id="imageTransparency" min="0" max="100" value="100">
+        
+        <label class="checkbox-label">
+            <input type="checkbox" id="imageCenterH" checked> Center Horizontally
+        </label>
+        <label class="checkbox-label">
+            <input type="checkbox" id="imageCenterV" checked> Center Vertically
+        </label>
     </div>
 
     <hr>
 
     <button onclick="downloadPin()">⬇️ Download Design</button>
-</div>
-
-<div id="preview">
-    <canvas id="pinCanvas" width="600" height="600"></canvas>
+    <button onclick="printPin()">🖨️ Print Design</button>
 </div>
 
 <script>
@@ -128,34 +347,39 @@
     const ctx = canvas.getContext('2d');
     
     let uploadedImage = null;
+    let textStyles = {
+        top: { italic: false, shadow: false, outline: false },
+        center: { italic: false, shadow: false, outline: false },
+        bottom: { italic: false, shadow: false, outline: false }
+    };
 
-    // Update range slider values
-    document.getElementById('topFontSize').addEventListener('input', function() {
-        document.getElementById('topFontSizeValue').textContent = this.value;
-        draw();
-    });
-    document.getElementById('centerFontSize').addEventListener('input', function() {
-        document.getElementById('centerFontSizeValue').textContent = this.value;
-        draw();
-    });
-    document.getElementById('bottomFontSize').addEventListener('input', function() {
-        document.getElementById('bottomFontSizeValue').textContent = this.value;
-        draw();
-    });
-    document.getElementById('imageSize').addEventListener('input', function() {
-        document.getElementById('imageSizeValue').textContent = this.value;
-        draw();
-    });
-    document.getElementById('imageStretch').addEventListener('input', function() {
-        document.getElementById('imageStretchValue').textContent = this.value;
-        draw();
+    // Update range slider display values
+    const rangeInputs = [
+        'topFontSize', 'topRotate', 'topTransparency',
+        'centerFontSize', 'centerRotate', 'centerTransparency',
+        'bottomFontSize', 'bottomRotate', 'bottomTransparency',
+        'imageSize', 'imageRotate', 'imageStretch', 'imageTransparency'
+    ];
+
+    rangeInputs.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('input', function() {
+                const valueId = id + 'Value';
+                const unit = id.includes('Rotate') ? '°' : (id.includes('Transparency') ? '%' : (id.includes('Stretch') ? '%' : '%'));
+                document.getElementById(valueId).textContent = this.value + (unit === '°' ? '°' : '');
+                draw();
+            });
+        }
     });
 
     // Listen for all input changes
-    const allInputs = ['topText', 'topFontSize', 'topTextColor', 'topCenterH', 'topCenterV',
-                       'center1', 'centerFontSize', 'centerTextColor', 'centerCenterH', 'centerCenterV',
-                       'bottomText', 'bottomFontSize', 'bottomTextColor', 'bottomCenterH', 'bottomCenterV',
-                       'bgColor', 'pinSize', 'imageSize', 'imageStretch', 'imageCenterH', 'imageCenterV'];
+    const allInputs = [
+        'topText', 'topFont', 'topFontSize', 'topTextColor', 'topRotate', 'topTransparency', 'topCenterH', 'topCenterV',
+        'center1', 'centerFont', 'centerFontSize', 'centerTextColor', 'centerRotate', 'centerTransparency', 'centerCenterH', 'centerCenterV',
+        'bottomText', 'bottomFont', 'bottomFontSize', 'bottomTextColor', 'bottomRotate', 'bottomTransparency', 'bottomCenterH', 'bottomCenterV',
+        'bgColor', 'pinSize', 'imageSize', 'imageRotate', 'imageStretch', 'imageTransparency', 'imageCenterH', 'imageCenterV'
+    ];
     
     allInputs.forEach(id => {
         const element = document.getElementById(id);
@@ -180,32 +404,54 @@
         }
     });
 
+    function toggleTextStyle(textElement, style) {
+        textStyles[textElement][style] = !textStyles[textElement][style];
+        draw();
+    }
+
+    function getFont(fontName, size, element) {
+        let font = `${size}px ${fontName}`;
+        if (textStyles[element].italic) font = `italic ${font}`;
+        return font;
+    }
+
     function draw() {
         const topText = document.getElementById('topText').value;
         const centerText = document.getElementById('center1').value;
         const bottomText = document.getElementById('bottomText').value;
         
+        const topFont = document.getElementById('topFont').value;
         const topFontSize = parseInt(document.getElementById('topFontSize').value);
+        const centerFont = document.getElementById('centerFont').value;
         const centerFontSize = parseInt(document.getElementById('centerFontSize').value);
+        const bottomFont = document.getElementById('bottomFont').value;
         const bottomFontSize = parseInt(document.getElementById('bottomFontSize').value);
         
         const topTextColor = document.getElementById('topTextColor').value;
         const centerTextColor = document.getElementById('centerTextColor').value;
         const bottomTextColor = document.getElementById('bottomTextColor').value;
         
+        const topRotate = parseInt(document.getElementById('topRotate').value);
+        const centerRotate = parseInt(document.getElementById('centerRotate').value);
+        const bottomRotate = parseInt(document.getElementById('bottomRotate').value);
+        
+        const topTransparency = parseInt(document.getElementById('topTransparency').value) / 100;
+        const centerTransparency = parseInt(document.getElementById('centerTransparency').value) / 100;
+        const bottomTransparency = parseInt(document.getElementById('bottomTransparency').value) / 100;
+        
         const bgColor = document.getElementById('bgColor').value;
         
         const topCenterH = document.getElementById('topCenterH').checked;
         const topCenterV = document.getElementById('topCenterV').checked;
-        
         const centerCenterH = document.getElementById('centerCenterH').checked;
         const centerCenterV = document.getElementById('centerCenterV').checked;
-        
         const bottomCenterH = document.getElementById('bottomCenterH').checked;
         const bottomCenterV = document.getElementById('bottomCenterV').checked;
         
         const imageSize = parseInt(document.getElementById('imageSize').value);
+        const imageRotate = parseInt(document.getElementById('imageRotate').value);
         const imageStretch = parseInt(document.getElementById('imageStretch').value);
+        const imageTransparency = parseInt(document.getElementById('imageTransparency').value) / 100;
         const imageCenterH = document.getElementById('imageCenterH').checked;
         const imageCenterV = document.getElementById('imageCenterV').checked;
         
@@ -233,43 +479,74 @@
             ctx.arc(cx, cy, radius * 0.6, 0, Math.PI * 2);
             ctx.clip();
             
+            ctx.globalAlpha = imageTransparency;
+            
             const imgWidth = (200 * imageSize) / 100;
-            const imgHeight = (200 * imageSize * imageStretch) / 100 / 100;
+            const imgHeight = (200 * imageSize * imageStretch) / 10000;
             const imgX = imageCenterH ? cx - imgWidth / 2 : cx - 100;
             const imgY = imageCenterV ? cy - imgHeight / 2 : cy - 100;
+            
+            ctx.translate(cx, cy);
+            ctx.rotate((imageRotate * Math.PI) / 180);
+            ctx.translate(-cx, -cy);
             
             ctx.drawImage(uploadedImage, imgX, imgY, imgWidth, imgHeight);
             ctx.restore();
         }
 
-        // Setup Text
+        // 4. Draw Top Arched Text
+        ctx.globalAlpha = topTransparency;
         ctx.fillStyle = topTextColor;
+        ctx.font = getFont(topFont, topFontSize, 'top');
+        drawArchedText(topText, cx, cy, radius - 30, Math.PI * 1.5, false, topCenterH, topRotate, textStyles.top);
 
-        // 5. Arched Top Text
-        ctx.font = `bold ${topFontSize}px Arial`;
-        drawArchedText(topText, cx, cy, radius - 30, Math.PI * 1.5, false, topFontSize, topCenterH);
+        // 5. Draw Bottom Arched Text
+        ctx.globalAlpha = bottomTransparency;
+        ctx.fillStyle = bottomTextColor;
+        ctx.font = getFont(bottomFont, bottomFontSize, 'bottom');
+        drawArchedText(bottomText, cx, cy, radius - 30, Math.PI * 0.5, true, bottomCenterH, bottomRotate, textStyles.bottom);
 
-        // 6. Arched Bottom Text
-        ctx.font = `bold ${bottomFontSize}px Arial`;
-        drawArchedText(bottomText, cx, cy, radius - 30, Math.PI * 0.5, true, bottomFontSize, bottomCenterH);
-
-        // 7. Center Text
+        // 6. Draw Center Text
+        ctx.globalAlpha = centerTransparency;
         ctx.fillStyle = centerTextColor;
-        ctx.font = `bold ${centerFontSize}px Arial`;
+        ctx.font = getFont(centerFont, centerFontSize, 'center');
         ctx.textAlign = centerCenterH ? "center" : "left";
+        
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate((centerRotate * Math.PI) / 180);
+        ctx.translate(-cx, -cy);
+        
         const centerTextX = centerCenterH ? cx : cx - 50;
         const centerTextY = centerCenterV ? cy : cy + 10;
+        
+        if (textStyles.center.shadow) {
+            ctx.fillStyle = 'rgba(0,0,0,0.5)';
+            ctx.fillText(centerText, centerTextX + 2, centerTextY + 2);
+        }
+        
+        ctx.fillStyle = centerTextColor;
         ctx.fillText(centerText, centerTextX, centerTextY);
+        
+        if (textStyles.center.outline) {
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+            ctx.strokeText(centerText, centerTextX, centerTextY);
+        }
+        
+        ctx.restore();
+        
+        ctx.globalAlpha = 1.0;
     }
 
-    function drawArchedText(text, cx, cy, radius, startAngle, isBottom, fontSize, centerH) {
+    function drawArchedText(text, cx, cy, radius, startAngle, isBottom, centerH, rotate, styles) {
         const characters = text.split("");
         const anglePerChar = 0.15;
         
         ctx.save();
         ctx.translate(cx, cy);
+        ctx.rotate((rotate * Math.PI) / 180);
         
-        // Calculate arc to center text
         let currentAngle = startAngle;
         if (centerH) {
             currentAngle = startAngle - (characters.length * anglePerChar) / 2;
@@ -281,11 +558,123 @@
             ctx.translate(0, isBottom ? radius : -radius);
             if (isBottom) ctx.rotate(Math.PI);
             ctx.textAlign = "center";
+            
+            // Draw shadow
+            if (styles.shadow) {
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillText(char, 2, 2);
+            }
+            
+            ctx.fillStyle = document.getElementById(isBottom ? 'bottomTextColor' : 'topTextColor').value;
             ctx.fillText(char, 0, 0);
+            
+            // Draw outline
+            if (styles.outline) {
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 2;
+                ctx.strokeText(char, 0, 0);
+            }
+            
             ctx.restore();
             currentAngle += anglePerChar;
         });
         ctx.restore();
+    }
+
+    function saveDesign() {
+        const design = {
+            topText: document.getElementById('topText').value,
+            topFont: document.getElementById('topFont').value,
+            topFontSize: document.getElementById('topFontSize').value,
+            topTextColor: document.getElementById('topTextColor').value,
+            topRotate: document.getElementById('topRotate').value,
+            topTransparency: document.getElementById('topTransparency').value,
+            topCenterH: document.getElementById('topCenterH').checked,
+            topCenterV: document.getElementById('topCenterV').checked,
+            
+            center1: document.getElementById('center1').value,
+            centerFont: document.getElementById('centerFont').value,
+            centerFontSize: document.getElementById('centerFontSize').value,
+            centerTextColor: document.getElementById('centerTextColor').value,
+            centerRotate: document.getElementById('centerRotate').value,
+            centerTransparency: document.getElementById('centerTransparency').value,
+            centerCenterH: document.getElementById('centerCenterH').checked,
+            centerCenterV: document.getElementById('centerCenterV').checked,
+            
+            bottomText: document.getElementById('bottomText').value,
+            bottomFont: document.getElementById('bottomFont').value,
+            bottomFontSize: document.getElementById('bottomFontSize').value,
+            bottomTextColor: document.getElementById('bottomTextColor').value,
+            bottomRotate: document.getElementById('bottomRotate').value,
+            bottomTransparency: document.getElementById('bottomTransparency').value,
+            bottomCenterH: document.getElementById('bottomCenterH').checked,
+            bottomCenterV: document.getElementById('bottomCenterV').checked,
+            
+            bgColor: document.getElementById('bgColor').value,
+            pinSize: document.getElementById('pinSize').value,
+            
+            imageSize: document.getElementById('imageSize').value,
+            imageRotate: document.getElementById('imageRotate').value,
+            imageStretch: document.getElementById('imageStretch').value,
+            imageTransparency: document.getElementById('imageTransparency').value,
+            imageCenterH: document.getElementById('imageCenterH').checked,
+            imageCenterV: document.getElementById('imageCenterV').checked,
+            
+            textStyles: JSON.stringify(textStyles)
+        };
+        
+        localStorage.setItem('pinDesign', JSON.stringify(design));
+        alert('Design saved!');
+    }
+
+    function loadDesign() {
+        const design = JSON.parse(localStorage.getItem('pinDesign'));
+        if (!design) {
+            alert('No saved design found');
+            return;
+        }
+        
+        document.getElementById('topText').value = design.topText;
+        document.getElementById('topFont').value = design.topFont;
+        document.getElementById('topFontSize').value = design.topFontSize;
+        document.getElementById('topTextColor').value = design.topTextColor;
+        document.getElementById('topRotate').value = design.topRotate;
+        document.getElementById('topTransparency').value = design.topTransparency;
+        document.getElementById('topCenterH').checked = design.topCenterH;
+        document.getElementById('topCenterV').checked = design.topCenterV;
+        
+        document.getElementById('center1').value = design.center1;
+        document.getElementById('centerFont').value = design.centerFont;
+        document.getElementById('centerFontSize').value = design.centerFontSize;
+        document.getElementById('centerTextColor').value = design.centerTextColor;
+        document.getElementById('centerRotate').value = design.centerRotate;
+        document.getElementById('centerTransparency').value = design.centerTransparency;
+        document.getElementById('centerCenterH').checked = design.centerCenterH;
+        document.getElementById('centerCenterV').checked = design.centerCenterV;
+        
+        document.getElementById('bottomText').value = design.bottomText;
+        document.getElementById('bottomFont').value = design.bottomFont;
+        document.getElementById('bottomFontSize').value = design.bottomFontSize;
+        document.getElementById('bottomTextColor').value = design.bottomTextColor;
+        document.getElementById('bottomRotate').value = design.bottomRotate;
+        document.getElementById('bottomTransparency').value = design.bottomTransparency;
+        document.getElementById('bottomCenterH').checked = design.bottomCenterH;
+        document.getElementById('bottomCenterV').checked = design.bottomCenterV;
+        
+        document.getElementById('bgColor').value = design.bgColor;
+        document.getElementById('pinSize').value = design.pinSize;
+        
+        document.getElementById('imageSize').value = design.imageSize;
+        document.getElementById('imageRotate').value = design.imageRotate;
+        document.getElementById('imageStretch').value = design.imageStretch;
+        document.getElementById('imageTransparency').value = design.imageTransparency;
+        document.getElementById('imageCenterH').checked = design.imageCenterH;
+        document.getElementById('imageCenterV').checked = design.imageCenterV;
+        
+        textStyles = JSON.parse(design.textStyles);
+        
+        draw();
+        alert('Design loaded!');
     }
 
     function downloadPin() {
@@ -293,6 +682,13 @@
         link.download = 'my-pin-design.png';
         link.href = canvas.toDataURL();
         link.click();
+    }
+
+    function printPin() {
+        const printWindow = window.open();
+        printWindow.document.write('<img src="' + canvas.toDataURL() + '" style="max-width: 100%;">');
+        printWindow.document.close();
+        printWindow.print();
     }
 
     draw(); // Initial draw
