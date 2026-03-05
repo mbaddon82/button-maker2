@@ -9,7 +9,7 @@
         body { font-family: Arial, sans-serif; display: flex; background: #f0f0f0; height: 100vh; }
         
         #preview { 
-            flex-grow: 1; 
+            flex: 1; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
@@ -28,11 +28,99 @@
             width: 350px; 
             background: #fff; 
             height: 100vh; 
-            overflow-y: auto; 
             border-right: 2px solid #ddd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #scrollContent {
+            flex: 1;
+            overflow-y: auto;
             padding: 15px;
         }
-        
+
+        #toggleBar {
+            background: #333;
+            padding: 12px;
+            border-top: 2px solid #ddd;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .toggle-btn {
+            padding: 8px 12px;
+            background: #555;
+            color: white;
+            border: 2px solid #666;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .toggle-btn:hover {
+            background: #777;
+        }
+
+        .toggle-btn.active {
+            background: #4CAF50;
+            border-color: #45a049;
+        }
+
+        .toggle-btn.inactive {
+            background: #f44336;
+            border-color: #da190b;
+        }
+
+        #rightPanel {
+            width: 350px;
+            background: #fff;
+            height: 100vh;
+            border-left: 2px solid #ddd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tab-buttons {
+            display: flex;
+            background: #f0f0f0;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: #ddd;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            background: #ccc;
+        }
+
+        .tab-btn.active {
+            background: #333;
+            color: white;
+        }
+
+        .tab-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         .control-group { 
             margin-bottom: 15px; 
             padding: 12px; 
@@ -161,185 +249,207 @@
 </div>
 
 <div id="sidebar">
-    <h1>📌 Pin Designer</h1>
-    
-    <div class="top-buttons">
-        <button onclick="saveDesign()">💾 Save Design</button>
-        <button onclick="loadDesign()">📂 Load Design</button>
+    <div id="scrollContent">
+        <h1>📌 Pin Designer</h1>
+        
+        <div class="top-buttons">
+            <button onclick="saveDesign()">💾 Save Design</button>
+            <button onclick="loadDesign()">📂 Load Design</button>
+        </div>
+
+        <div class="control-group">
+            <div class="section-title">⚙️ Pin Settings</div>
+            <label>Pin Size (Inches)</label>
+            <select id="pinSize">
+                <option value="1">1"</option>
+                <option value="1.25">1.25"</option>
+                <option value="2.25" selected>2.25"</option>
+                <option value="3">3"</option>
+                <option value="6">6"</option>
+            </select>
+            
+            <label>Background Color</label>
+            <input type="color" id="bgColor" value="#d32f2f">
+        </div>
+
+        <hr>
+
+        <button onclick="downloadPin()" style="margin-top: 0;">⬇️ Download Design</button>
+        <button onclick="printPin()">🖨️ Print Design</button>
     </div>
 
-    <div class="control-group">
-        <div class="section-title">⚙️ Pin Settings</div>
-        <label>Pin Size (Inches)</label>
-        <select id="pinSize">
-            <option value="1">1"</option>
-            <option value="1.25">1.25"</option>
-            <option value="2.25" selected>2.25"</option>
-            <option value="3">3"</option>
-            <option value="6">6"</option>
-        </select>
-        
-        <label>Background Color</label>
-        <input type="color" id="bgColor" value="#d32f2f">
+    <div id="toggleBar">
+        <button class="toggle-btn active" id="toggleTop" onclick="toggleElement('top')">Top Text</button>
+        <button class="toggle-btn active" id="toggleCenter" onclick="toggleElement('center')">Center Text</button>
+        <button class="toggle-btn active" id="toggleBottom" onclick="toggleElement('bottom')">Bottom Text</button>
+        <button class="toggle-btn active" id="toggleImage" onclick="toggleElement('image')">Image</button>
+    </div>
+</div>
+
+<div id="rightPanel">
+    <div class="tab-buttons">
+        <button class="tab-btn active" onclick="switchTab('top')">🔝 Top</button>
+        <button class="tab-btn" onclick="switchTab('center')">📍 Center</button>
+        <button class="tab-btn" onclick="switchTab('bottom')">🔽 Bottom</button>
+        <button class="tab-btn" onclick="switchTab('image')">🖼️ Image</button>
     </div>
 
-    <hr>
-
-    <div class="control-group">
-        <div class="section-title">🔝 Top Arched Text</div>
-        <label>Text</label>
-        <input type="text" id="topText" value="TOP ARCHED TEXT">
-        
-        <label>Font</label>
-        <select id="topFont">
-            <option value="Arial">Arial</option>
-            <option value="Georgia">Georgia</option>
-            <option value="Times New Roman">Times New Roman</option>
-            <option value="Courier New">Courier New</option>
-            <option value="Verdana">Verdana</option>
-        </select>
-        
-        <label>Size: <span class="range-value" id="topFontSizeValue">30</span></label>
-        <input type="range" id="topFontSize" min="10" max="80" value="30">
-        
-        <label>Color</label>
-        <input type="color" id="topTextColor" value="#ffffff">
-        
-        <label>Rotation: <span class="range-value" id="topRotateValue">0</span>°</label>
-        <input type="range" id="topRotate" min="-45" max="45" value="0">
-        
-        <label>Transparency: <span class="range-value" id="topTransparencyValue">100</span>%</label>
-        <input type="range" id="topTransparency" min="0" max="100" value="100">
-        
-        <label class="checkbox-label">
-            <input type="checkbox" id="topCenterH" checked> Center Horizontally
-        </label>
-        <label class="checkbox-label">
-            <input type="checkbox" id="topCenterV"> Center Vertically
-        </label>
-        
-        <div class="button-row">
-            <button onclick="toggleTextStyle('top', 'italic')">Italic</button>
-            <button onclick="toggleTextStyle('top', 'shadow')">Shadow</button>
-            <button onclick="toggleTextStyle('top', 'outline')">Outline</button>
+    <!-- TOP TEXT TAB -->
+    <div id="top-tab" class="tab-content active">
+        <div class="control-group">
+            <div class="section-title">🔝 Top Arched Text</div>
+            <label>Text</label>
+            <input type="text" id="topText" value="TOP ARCHED TEXT">
+            
+            <label>Font</label>
+            <select id="topFont">
+                <option value="Arial">Arial</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Verdana">Verdana</option>
+            </select>
+            
+            <label>Size: <span class="range-value" id="topFontSizeValue">30</span></label>
+            <input type="range" id="topFontSize" min="10" max="80" value="30">
+            
+            <label>Color</label>
+            <input type="color" id="topTextColor" value="#ffffff">
+            
+            <label>Rotation: <span class="range-value" id="topRotateValue">0</span>°</label>
+            <input type="range" id="topRotate" min="-45" max="45" value="0">
+            
+            <label>Transparency: <span class="range-value" id="topTransparencyValue">100</span>%</label>
+            <input type="range" id="topTransparency" min="0" max="100" value="100">
+            
+            <label class="checkbox-label">
+                <input type="checkbox" id="topCenterH" checked> Center Horizontally
+            </label>
+            <label class="checkbox-label">
+                <input type="checkbox" id="topCenterV"> Center Vertically
+            </label>
+            
+            <div class="button-row">
+                <button onclick="toggleTextStyle('top', 'italic')">Italic</button>
+                <button onclick="toggleTextStyle('top', 'shadow')">Shadow</button>
+                <button onclick="toggleTextStyle('top', 'outline')">Outline</button>
+            </div>
         </div>
     </div>
 
-    <hr>
-
-    <div class="control-group">
-        <div class="section-title">📍 Center Text</div>
-        <label>Text</label>
-        <input type="text" id="center1" value="CENTER TEXT">
-        
-        <label>Font</label>
-        <select id="centerFont">
-            <option value="Arial">Arial</option>
-            <option value="Georgia">Georgia</option>
-            <option value="Times New Roman">Times New Roman</option>
-            <option value="Courier New">Courier New</option>
-            <option value="Verdana">Verdana</option>
-        </select>
-        
-        <label>Size: <span class="range-value" id="centerFontSizeValue">30</span></label>
-        <input type="range" id="centerFontSize" min="10" max="80" value="30">
-        
-        <label>Color</label>
-        <input type="color" id="centerTextColor" value="#ffffff">
-        
-        <label>Rotation: <span class="range-value" id="centerRotateValue">0</span>°</label>
-        <input type="range" id="centerRotate" min="-45" max="45" value="0">
-        
-        <label>Transparency: <span class="range-value" id="centerTransparencyValue">100</span>%</label>
-        <input type="range" id="centerTransparency" min="0" max="100" value="100">
-        
-        <label class="checkbox-label">
-            <input type="checkbox" id="centerCenterH" checked> Center Horizontally
-        </label>
-        <label class="checkbox-label">
-            <input type="checkbox" id="centerCenterV" checked> Center Vertically
-        </label>
-        
-        <div class="button-row">
-            <button onclick="toggleTextStyle('center', 'italic')">Italic</button>
-            <button onclick="toggleTextStyle('center', 'shadow')">Shadow</button>
-            <button onclick="toggleTextStyle('center', 'outline')">Outline</button>
+    <!-- CENTER TEXT TAB -->
+    <div id="center-tab" class="tab-content">
+        <div class="control-group">
+            <div class="section-title">📍 Center Text</div>
+            <label>Text</label>
+            <input type="text" id="center1" value="CENTER TEXT">
+            
+            <label>Font</label>
+            <select id="centerFont">
+                <option value="Arial">Arial</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Verdana">Verdana</option>
+            </select>
+            
+            <label>Size: <span class="range-value" id="centerFontSizeValue">30</span></label>
+            <input type="range" id="centerFontSize" min="10" max="80" value="30">
+            
+            <label>Color</label>
+            <input type="color" id="centerTextColor" value="#ffffff">
+            
+            <label>Rotation: <span class="range-value" id="centerRotateValue">0</span>°</label>
+            <input type="range" id="centerRotate" min="-45" max="45" value="0">
+            
+            <label>Transparency: <span class="range-value" id="centerTransparencyValue">100</span>%</label>
+            <input type="range" id="centerTransparency" min="0" max="100" value="100">
+            
+            <label class="checkbox-label">
+                <input type="checkbox" id="centerCenterH" checked> Center Horizontally
+            </label>
+            <label class="checkbox-label">
+                <input type="checkbox" id="centerCenterV" checked> Center Vertically
+            </label>
+            
+            <div class="button-row">
+                <button onclick="toggleTextStyle('center', 'italic')">Italic</button>
+                <button onclick="toggleTextStyle('center', 'shadow')">Shadow</button>
+                <button onclick="toggleTextStyle('center', 'outline')">Outline</button>
+            </div>
         </div>
     </div>
 
-    <hr>
-
-    <div class="control-group">
-        <div class="section-title">🔽 Bottom Arched Text</div>
-        <label>Text</label>
-        <input type="text" id="bottomText" value="BOTTOM ARCHED TEXT">
-        
-        <label>Font</label>
-        <select id="bottomFont">
-            <option value="Arial">Arial</option>
-            <option value="Georgia">Georgia</option>
-            <option value="Times New Roman">Times New Roman</option>
-            <option value="Courier New">Courier New</option>
-            <option value="Verdana">Verdana</option>
-        </select>
-        
-        <label>Size: <span class="range-value" id="bottomFontSizeValue">30</span></label>
-        <input type="range" id="bottomFontSize" min="10" max="80" value="30">
-        
-        <label>Color</label>
-        <input type="color" id="bottomTextColor" value="#ffffff">
-        
-        <label>Rotation: <span class="range-value" id="bottomRotateValue">0</span>°</label>
-        <input type="range" id="bottomRotate" min="-45" max="45" value="0">
-        
-        <label>Transparency: <span class="range-value" id="bottomTransparencyValue">100</span>%</label>
-        <input type="range" id="bottomTransparency" min="0" max="100" value="100">
-        
-        <label class="checkbox-label">
-            <input type="checkbox" id="bottomCenterH" checked> Center Horizontally
-        </label>
-        <label class="checkbox-label">
-            <input type="checkbox" id="bottomCenterV"> Center Vertically
-        </label>
-        
-        <div class="button-row">
-            <button onclick="toggleTextStyle('bottom', 'italic')">Italic</button>
-            <button onclick="toggleTextStyle('bottom', 'shadow')">Shadow</button>
-            <button onclick="toggleTextStyle('bottom', 'outline')">Outline</button>
+    <!-- BOTTOM TEXT TAB -->
+    <div id="bottom-tab" class="tab-content">
+        <div class="control-group">
+            <div class="section-title">🔽 Bottom Arched Text</div>
+            <label>Text</label>
+            <input type="text" id="bottomText" value="BOTTOM ARCHED TEXT">
+            
+            <label>Font</label>
+            <select id="bottomFont">
+                <option value="Arial">Arial</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Verdana">Verdana</option>
+            </select>
+            
+            <label>Size: <span class="range-value" id="bottomFontSizeValue">30</span></label>
+            <input type="range" id="bottomFontSize" min="10" max="80" value="30">
+            
+            <label>Color</label>
+            <input type="color" id="bottomTextColor" value="#ffffff">
+            
+            <label>Rotation: <span class="range-value" id="bottomRotateValue">0</span>°</label>
+            <input type="range" id="bottomRotate" min="-45" max="45" value="0">
+            
+            <label>Transparency: <span class="range-value" id="bottomTransparencyValue">100</span>%</label>
+            <input type="range" id="bottomTransparency" min="0" max="100" value="100">
+            
+            <label class="checkbox-label">
+                <input type="checkbox" id="bottomCenterH" checked> Center Horizontally
+            </label>
+            <label class="checkbox-label">
+                <input type="checkbox" id="bottomCenterV"> Center Vertically
+            </label>
+            
+            <div class="button-row">
+                <button onclick="toggleTextStyle('bottom', 'italic')">Italic</button>
+                <button onclick="toggleTextStyle('bottom', 'shadow')">Shadow</button>
+                <button onclick="toggleTextStyle('bottom', 'outline')">Outline</button>
+            </div>
         </div>
     </div>
 
-    <hr>
-
-    <div class="control-group">
-        <div class="section-title">🖼️ Image</div>
-        <label>Upload Image</label>
-        <input type="file" id="imageUpload" accept="image/*">
-        
-        <label>Size: <span class="range-value" id="imageSizeValue">100</span>%</label>
-        <input type="range" id="imageSize" min="10" max="200" value="100">
-        
-        <label>Rotation: <span class="range-value" id="imageRotateValue">0</span>°</label>
-        <input type="range" id="imageRotate" min="0" max="360" value="0">
-        
-        <label>Stretch: <span class="range-value" id="imageStretchValue">100</span>%</label>
-        <input type="range" id="imageStretch" min="50" max="150" value="100">
-        
-        <label>Transparency: <span class="range-value" id="imageTransparencyValue">100</span>%</label>
-        <input type="range" id="imageTransparency" min="0" max="100" value="100">
-        
-        <label class="checkbox-label">
-            <input type="checkbox" id="imageCenterH" checked> Center Horizontally
-        </label>
-        <label class="checkbox-label">
-            <input type="checkbox" id="imageCenterV" checked> Center Vertically
-        </label>
+    <!-- IMAGE TAB -->
+    <div id="image-tab" class="tab-content">
+        <div class="control-group">
+            <div class="section-title">🖼️ Image</div>
+            <label>Upload Image</label>
+            <input type="file" id="imageUpload" accept="image/*">
+            
+            <label>Size: <span class="range-value" id="imageSizeValue">100</span>%</label>
+            <input type="range" id="imageSize" min="10" max="200" value="100">
+            
+            <label>Rotation: <span class="range-value" id="imageRotateValue">0</span>°</label>
+            <input type="range" id="imageRotate" min="0" max="360" value="0">
+            
+            <label>Stretch: <span class="range-value" id="imageStretchValue">100</span>%</label>
+            <input type="range" id="imageStretch" min="50" max="150" value="100">
+            
+            <label>Transparency: <span class="range-value" id="imageTransparencyValue">100</span>%</label>
+            <input type="range" id="imageTransparency" min="0" max="100" value="100">
+            
+            <label class="checkbox-label">
+                <input type="checkbox" id="imageCenterH" checked> Center Horizontally
+            </label>
+            <label class="checkbox-label">
+                <input type="checkbox" id="imageCenterV" checked> Center Vertically
+            </label>
+        </div>
     </div>
-
-    <hr>
-
-    <button onclick="downloadPin()">⬇️ Download Design</button>
-    <button onclick="printPin()">🖨️ Print Design</button>
 </div>
 
 <script>
@@ -347,11 +457,40 @@
     const ctx = canvas.getContext('2d');
     
     let uploadedImage = null;
+    let visibility = {
+        top: true,
+        center: true,
+        bottom: true,
+        image: true
+    };
+    
     let textStyles = {
         top: { italic: false, shadow: false, outline: false },
         center: { italic: false, shadow: false, outline: false },
         bottom: { italic: false, shadow: false, outline: false }
     };
+
+    function switchTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Show selected tab
+        document.getElementById(tabName + '-tab').classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    function toggleElement(element) {
+        visibility[element] = !visibility[element];
+        const btn = document.getElementById('toggle' + element.charAt(0).toUpperCase() + element.slice(1));
+        btn.classList.toggle('active');
+        btn.classList.toggle('inactive');
+        draw();
+    }
 
     // Update range slider display values
     const rangeInputs = [
@@ -469,8 +608,8 @@
         ctx.fillStyle = bgColor;
         ctx.fill();
 
-        // 3. Draw Uploaded Image (if exists)
-        if (uploadedImage) {
+        // 3. Draw Uploaded Image (if exists and visible)
+        if (uploadedImage && visibility.image) {
             ctx.save();
             ctx.beginPath();
             ctx.arc(cx, cy, radius * 0.6, 0, Math.PI * 2);
@@ -491,47 +630,53 @@
             ctx.restore();
         }
 
-        // 4. Draw Top Arched Text (at the TOP of circle)
-        ctx.globalAlpha = topTransparency;
-        ctx.fillStyle = topTextColor;
-        ctx.font = getFont(topFont, topFontSize, 'top');
-        drawArchedText(topText, cx, cy, radius - 30, true, topCenterH, topRotate, textStyles.top, topFontSize, topFont);
-
-        // 5. Draw Bottom Arched Text (at the BOTTOM of circle)
-        ctx.globalAlpha = bottomTransparency;
-        ctx.fillStyle = bottomTextColor;
-        ctx.font = getFont(bottomFont, bottomFontSize, 'bottom');
-        drawArchedText(bottomText, cx, cy, radius - 30, false, bottomCenterH, bottomRotate, textStyles.bottom, bottomFontSize, bottomFont);
-
-        // 6. Draw Center Text
-        ctx.globalAlpha = centerTransparency;
-        ctx.fillStyle = centerTextColor;
-        ctx.font = getFont(centerFont, centerFontSize, 'center');
-        ctx.textAlign = centerCenterH ? "center" : "left";
-        
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.rotate((centerRotate * Math.PI) / 180);
-        ctx.translate(-cx, -cy);
-        
-        const centerTextX = centerCenterH ? cx : cx - 50;
-        const centerTextY = centerCenterV ? cy : cy + 10;
-        
-        if (textStyles.center.shadow) {
-            ctx.fillStyle = 'rgba(0,0,0,0.5)';
-            ctx.fillText(centerText, centerTextX + 2, centerTextY + 2);
+        // 4. Draw Top Arched Text (if visible)
+        if (visibility.top) {
+            ctx.globalAlpha = topTransparency;
+            ctx.fillStyle = topTextColor;
+            ctx.font = getFont(topFont, topFontSize, 'top');
+            drawArchedText(topText, cx, cy, radius - 30, true, topCenterH, topRotate, textStyles.top, topFontSize, topFont);
         }
-        
-        ctx.fillStyle = centerTextColor;
-        ctx.fillText(centerText, centerTextX, centerTextY);
-        
-        if (textStyles.center.outline) {
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 2;
-            ctx.strokeText(centerText, centerTextX, centerTextY);
+
+        // 5. Draw Bottom Arched Text (if visible)
+        if (visibility.bottom) {
+            ctx.globalAlpha = bottomTransparency;
+            ctx.fillStyle = bottomTextColor;
+            ctx.font = getFont(bottomFont, bottomFontSize, 'bottom');
+            drawArchedText(bottomText, cx, cy, radius - 30, false, bottomCenterH, bottomRotate, textStyles.bottom, bottomFontSize, bottomFont);
         }
-        
-        ctx.restore();
+
+        // 6. Draw Center Text (if visible)
+        if (visibility.center) {
+            ctx.globalAlpha = centerTransparency;
+            ctx.fillStyle = centerTextColor;
+            ctx.font = getFont(centerFont, centerFontSize, 'center');
+            ctx.textAlign = centerCenterH ? "center" : "left";
+            
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate((centerRotate * Math.PI) / 180);
+            ctx.translate(-cx, -cy);
+            
+            const centerTextX = centerCenterH ? cx : cx - 50;
+            const centerTextY = centerCenterV ? cy : cy + 10;
+            
+            if (textStyles.center.shadow) {
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillText(centerText, centerTextX + 2, centerTextY + 2);
+            }
+            
+            ctx.fillStyle = centerTextColor;
+            ctx.fillText(centerText, centerTextX, centerTextY);
+            
+            if (textStyles.center.outline) {
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 2;
+                ctx.strokeText(centerText, centerTextX, centerTextY);
+            }
+            
+            ctx.restore();
+        }
         
         ctx.globalAlpha = 1.0;
     }
@@ -548,18 +693,13 @@
         let startAngle;
         
         if (isTop) {
-            startAngle = centerH ? totalAngle / 2 : 0;
+            startAngle = centerH ? Math.PI - (totalAngle / 2) : Math.PI;
         } else {
-            startAngle = centerH ? -totalAngle / 2 : Math.PI;
+            startAngle = centerH ? -totalAngle / 2 : 0;
         }
 
         characters.forEach((char, index) => {
-            let angle;
-            if (isTop) {
-                angle = startAngle - (index * anglePerChar);
-            } else {
-                angle = startAngle + (index * anglePerChar);
-            }
+            const angle = startAngle + (index * anglePerChar);
             
             ctx.save();
             ctx.translate(Math.cos(angle) * radius, Math.sin(angle) * radius);
@@ -625,6 +765,7 @@
             imageCenterH: document.getElementById('imageCenterH').checked,
             imageCenterV: document.getElementById('imageCenterV').checked,
             
+            visibility: JSON.stringify(visibility),
             textStyles: JSON.stringify(textStyles)
         };
         
@@ -674,7 +815,20 @@
         document.getElementById('imageCenterH').checked = design.imageCenterH;
         document.getElementById('imageCenterV').checked = design.imageCenterV;
         
+        visibility = JSON.parse(design.visibility);
         textStyles = JSON.parse(design.textStyles);
+        
+        // Update toggle button states
+        Object.keys(visibility).forEach(key => {
+            const btn = document.getElementById('toggle' + key.charAt(0).toUpperCase() + key.slice(1));
+            if (visibility[key]) {
+                btn.classList.add('active');
+                btn.classList.remove('inactive');
+            } else {
+                btn.classList.remove('active');
+                btn.classList.add('inactive');
+            }
+        });
         
         draw();
         alert('Design loaded!');
@@ -796,8 +950,8 @@
         printCtx.fillStyle = bgColor;
         printCtx.fill();
 
-        // 3. Draw Uploaded Image (if exists)
-        if (uploadedImage) {
+        // 3. Draw Uploaded Image (if exists and visible)
+        if (uploadedImage && visibility.image) {
             printCtx.save();
             printCtx.beginPath();
             printCtx.arc(centerX, centerY, radius * 0.6, 0, Math.PI * 2);
@@ -818,47 +972,53 @@
             printCtx.restore();
         }
 
-        // 4. Draw Top Arched Text
-        printCtx.globalAlpha = topTransparency;
-        printCtx.fillStyle = topTextColor;
-        printCtx.font = `${textStyles.top.italic ? 'italic ' : ''}bold ${topFontSize * scale}px ${topFont}`;
-        drawArchedTextToPrint(printCtx, topText, centerX, centerY, radius - 30, true, topCenterH, topRotate, textStyles.top, topFontSize * scale, topFont, topTextColor);
-
-        // 5. Draw Bottom Arched Text
-        printCtx.globalAlpha = bottomTransparency;
-        printCtx.fillStyle = bottomTextColor;
-        printCtx.font = `${textStyles.bottom.italic ? 'italic ' : ''}bold ${bottomFontSize * scale}px ${bottomFont}`;
-        drawArchedTextToPrint(printCtx, bottomText, centerX, centerY, radius - 30, false, bottomCenterH, bottomRotate, textStyles.bottom, bottomFontSize * scale, bottomFont, bottomTextColor);
-
-        // 6. Draw Center Text
-        printCtx.globalAlpha = centerTransparency;
-        printCtx.fillStyle = centerTextColor;
-        printCtx.font = `${textStyles.center.italic ? 'italic ' : ''}bold ${centerFontSize * scale}px ${centerFont}`;
-        printCtx.textAlign = centerCenterH ? "center" : "left";
-        
-        printCtx.save();
-        printCtx.translate(centerX, centerY);
-        printCtx.rotate((centerRotate * Math.PI) / 180);
-        printCtx.translate(-centerX, -centerY);
-        
-        const centerTextX = centerCenterH ? centerX : centerX - (50 * scale);
-        const centerTextY = centerCenterV ? centerY : centerY + (10 * scale);
-        
-        if (textStyles.center.shadow) {
-            printCtx.fillStyle = 'rgba(0,0,0,0.5)';
-            printCtx.fillText(centerText, centerTextX + 2, centerTextY + 2);
+        // 4. Draw Top Arched Text (if visible)
+        if (visibility.top) {
+            printCtx.globalAlpha = topTransparency;
+            printCtx.fillStyle = topTextColor;
+            printCtx.font = `${textStyles.top.italic ? 'italic ' : ''}bold ${topFontSize * scale}px ${topFont}`;
+            drawArchedTextToPrint(printCtx, topText, centerX, centerY, radius - 30, true, topCenterH, topRotate, textStyles.top, topFontSize * scale, topFont, topTextColor);
         }
-        
-        printCtx.fillStyle = centerTextColor;
-        printCtx.fillText(centerText, centerTextX, centerTextY);
-        
-        if (textStyles.center.outline) {
-            printCtx.strokeStyle = 'black';
-            printCtx.lineWidth = 2;
-            printCtx.strokeText(centerText, centerTextX, centerTextY);
+
+        // 5. Draw Bottom Arched Text (if visible)
+        if (visibility.bottom) {
+            printCtx.globalAlpha = bottomTransparency;
+            printCtx.fillStyle = bottomTextColor;
+            printCtx.font = `${textStyles.bottom.italic ? 'italic ' : ''}bold ${bottomFontSize * scale}px ${bottomFont}`;
+            drawArchedTextToPrint(printCtx, bottomText, centerX, centerY, radius - 30, false, bottomCenterH, bottomRotate, textStyles.bottom, bottomFontSize * scale, bottomFont, bottomTextColor);
         }
-        
-        printCtx.restore();
+
+        // 6. Draw Center Text (if visible)
+        if (visibility.center) {
+            printCtx.globalAlpha = centerTransparency;
+            printCtx.fillStyle = centerTextColor;
+            printCtx.font = `${textStyles.center.italic ? 'italic ' : ''}bold ${centerFontSize * scale}px ${centerFont}`;
+            printCtx.textAlign = centerCenterH ? "center" : "left";
+            
+            printCtx.save();
+            printCtx.translate(centerX, centerY);
+            printCtx.rotate((centerRotate * Math.PI) / 180);
+            printCtx.translate(-centerX, -centerY);
+            
+            const centerTextX = centerCenterH ? centerX : centerX - (50 * scale);
+            const centerTextY = centerCenterV ? centerY : centerY + (10 * scale);
+            
+            if (textStyles.center.shadow) {
+                printCtx.fillStyle = 'rgba(0,0,0,0.5)';
+                printCtx.fillText(centerText, centerTextX + 2, centerTextY + 2);
+            }
+            
+            printCtx.fillStyle = centerTextColor;
+            printCtx.fillText(centerText, centerTextX, centerTextY);
+            
+            if (textStyles.center.outline) {
+                printCtx.strokeStyle = 'black';
+                printCtx.lineWidth = 2;
+                printCtx.strokeText(centerText, centerTextX, centerTextY);
+            }
+            
+            printCtx.restore();
+        }
         
         printCtx.globalAlpha = 1.0;
     }
@@ -875,18 +1035,13 @@
         let startAngle;
         
         if (isTop) {
-            startAngle = centerH ? totalAngle / 2 : 0;
+            startAngle = centerH ? Math.PI - (totalAngle / 2) : Math.PI;
         } else {
-            startAngle = centerH ? -totalAngle / 2 : Math.PI;
+            startAngle = centerH ? -totalAngle / 2 : 0;
         }
 
         characters.forEach((char, index) => {
-            let angle;
-            if (isTop) {
-                angle = startAngle - (index * anglePerChar);
-            } else {
-                angle = startAngle + (index * anglePerChar);
-            }
+            const angle = startAngle + (index * anglePerChar);
             
             printCtx.save();
             printCtx.translate(Math.cos(angle) * radius, Math.sin(angle) * radius);
