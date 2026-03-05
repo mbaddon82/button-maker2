@@ -544,36 +544,39 @@
         ctx.translate(cx, cy);
         ctx.rotate((rotate * Math.PI) / 180);
         
-        // Calculate starting angle for top/bottom centering
         const totalAngle = characters.length * anglePerChar;
-        let startAngle = isTop ? -Math.PI / 2 : Math.PI / 2; // Top at -90°, Bottom at 90°
+        let startAngle;
         
-        if (centerH) {
-            startAngle -= totalAngle / 2;
+        if (isTop) {
+            startAngle = centerH ? totalAngle / 2 : 0;
+        } else {
+            startAngle = centerH ? -totalAngle / 2 : Math.PI;
         }
 
         characters.forEach((char, index) => {
-            const angle = startAngle + (index * anglePerChar);
+            let angle;
+            if (isTop) {
+                angle = startAngle - (index * anglePerChar);
+            } else {
+                angle = startAngle + (index * anglePerChar);
+            }
             
             ctx.save();
             ctx.translate(Math.cos(angle) * radius, Math.sin(angle) * radius);
-            ctx.rotate(angle + (isTop ? 0 : Math.PI));
+            ctx.rotate(angle + Math.PI / 2);
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             
-            // Draw shadow
             if (styles.shadow) {
                 ctx.fillStyle = 'rgba(0,0,0,0.5)';
                 ctx.fillText(char, 2, 2);
             }
             
-            // Get the color
             const colorInput = isTop ? 'topTextColor' : 'bottomTextColor';
             ctx.fillStyle = document.getElementById(colorInput).value;
             ctx.font = `${styles.italic ? 'italic ' : ''}bold ${fontSize}px ${fontName}`;
             ctx.fillText(char, 0, 0);
             
-            // Draw outline
             if (styles.outline) {
                 ctx.strokeStyle = 'black';
                 ctx.lineWidth = 2;
@@ -685,13 +688,233 @@
     }
 
     function printPin() {
+        const pinSizeInches = parseFloat(document.getElementById('pinSize').value);
+        const dpi = 300;
+        const pinSizePixels = pinSizeInches * dpi;
+        
+        const printCanvas = document.createElement('canvas');
+        const pageWidth = 8.5 * dpi;
+        const pageHeight = 11 * dpi;
+        
+        printCanvas.width = pageWidth;
+        printCanvas.height = pageHeight;
+        const printCtx = printCanvas.getContext('2d');
+        
+        printCtx.fillStyle = 'white';
+        printCtx.fillRect(0, 0, pageWidth, pageHeight);
+        
+        const margin = 0.5 * dpi;
+        const availableWidth = pageWidth - (margin * 2);
+        const availableHeight = pageHeight - (margin * 2);
+        
+        const pinsPerRow = Math.floor(availableWidth / (pinSizePixels + 20));
+        const pinsPerCol = Math.floor(availableHeight / (pinSizePixels + 20));
+        
+        const spacingX = availableWidth / pinsPerRow;
+        const spacingY = availableHeight / pinsPerCol;
+        
+        for (let row = 0; row < pinsPerCol; row++) {
+            for (let col = 0; col < pinsPerRow; col++) {
+                const x = margin + (col * spacingX) + (spacingX / 2);
+                const y = margin + (row * spacingY) + (spacingY / 2);
+                
+                drawPinToPrintCanvas(printCtx, x, y, pinSizePixels / 2);
+            }
+        }
+        
         const printWindow = window.open();
-        printWindow.document.write('<img src="' + canvas.toDataURL() + '" style="max-width: 100%;">');
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Print Pin Design</title>
+                <style>
+                    body { margin: 0; padding: 0; }
+                    img { display: block; width: 100%; height: auto; }
+                    @media print {
+                        body { margin: 0; padding: 0; }
+                        img { margin: 0; padding: 0; }
+                    }
+                </style>
+            </head>
+            <body>
+                <img src="${printCanvas.toDataURL()}" />
+            </body>
+            </html>
+        `);
         printWindow.document.close();
-        printWindow.print();
+        setTimeout(() => printWindow.print(), 500);
     }
 
-    draw(); // Initial draw
+    function drawPinToPrintCanvas(printCtx, centerX, centerY, radius) {
+        const topText = document.getElementById('topText').value;
+        const centerText = document.getElementById('center1').value;
+        const bottomText = document.getElementById('bottomText').value;
+        
+        const topFont = document.getElementById('topFont').value;
+        const topFontSize = parseInt(document.getElementById('topFontSize').value);
+        const centerFont = document.getElementById('centerFont').value;
+        const centerFontSize = parseInt(document.getElementById('centerFontSize').value);
+        const bottomFont = document.getElementById('bottomFont').value;
+        const bottomFontSize = parseInt(document.getElementById('bottomFontSize').value);
+        
+        const topTextColor = document.getElementById('topTextColor').value;
+        const centerTextColor = document.getElementById('centerTextColor').value;
+        const bottomTextColor = document.getElementById('bottomTextColor').value;
+        
+        const topRotate = parseInt(document.getElementById('topRotate').value);
+        const centerRotate = parseInt(document.getElementById('centerRotate').value);
+        const bottomRotate = parseInt(document.getElementById('bottomRotate').value);
+        
+        const topTransparency = parseInt(document.getElementById('topTransparency').value) / 100;
+        const centerTransparency = parseInt(document.getElementById('centerTransparency').value) / 100;
+        const bottomTransparency = parseInt(document.getElementById('bottomTransparency').value) / 100;
+        
+        const bgColor = document.getElementById('bgColor').value;
+        const topCenterH = document.getElementById('topCenterH').checked;
+        const centerCenterH = document.getElementById('centerCenterH').checked;
+        const centerCenterV = document.getElementById('centerCenterV').checked;
+        const bottomCenterH = document.getElementById('bottomCenterH').checked;
+        
+        const imageSize = parseInt(document.getElementById('imageSize').value);
+        const imageRotate = parseInt(document.getElementById('imageRotate').value);
+        const imageStretch = parseInt(document.getElementById('imageStretch').value);
+        const imageTransparency = parseInt(document.getElementById('imageTransparency').value) / 100;
+        const imageCenterH = document.getElementById('imageCenterH').checked;
+        const imageCenterV = document.getElementById('imageCenterV').checked;
+        
+        const scale = radius / 250;
+        
+        // 1. Draw Outer Circle (Black)
+        printCtx.beginPath();
+        printCtx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        printCtx.fillStyle = "black";
+        printCtx.fill();
+
+        // 2. Draw Inner Circle (Custom Background Color)
+        printCtx.beginPath();
+        printCtx.arc(centerX, centerY, radius * 0.7, 0, Math.PI * 2);
+        printCtx.fillStyle = bgColor;
+        printCtx.fill();
+
+        // 3. Draw Uploaded Image (if exists)
+        if (uploadedImage) {
+            printCtx.save();
+            printCtx.beginPath();
+            printCtx.arc(centerX, centerY, radius * 0.6, 0, Math.PI * 2);
+            printCtx.clip();
+            
+            printCtx.globalAlpha = imageTransparency;
+            
+            const imgWidth = (200 * imageSize / 100) * scale;
+            const imgHeight = (200 * imageSize * imageStretch / 10000) * scale;
+            const imgX = imageCenterH ? centerX - imgWidth / 2 : centerX - (100 * scale);
+            const imgY = imageCenterV ? centerY - imgHeight / 2 : centerY - (100 * scale);
+            
+            printCtx.translate(centerX, centerY);
+            printCtx.rotate((imageRotate * Math.PI) / 180);
+            printCtx.translate(-centerX, -centerY);
+            
+            printCtx.drawImage(uploadedImage, imgX, imgY, imgWidth, imgHeight);
+            printCtx.restore();
+        }
+
+        // 4. Draw Top Arched Text
+        printCtx.globalAlpha = topTransparency;
+        printCtx.fillStyle = topTextColor;
+        printCtx.font = `${textStyles.top.italic ? 'italic ' : ''}bold ${topFontSize * scale}px ${topFont}`;
+        drawArchedTextToPrint(printCtx, topText, centerX, centerY, radius - 30, true, topCenterH, topRotate, textStyles.top, topFontSize * scale, topFont, topTextColor);
+
+        // 5. Draw Bottom Arched Text
+        printCtx.globalAlpha = bottomTransparency;
+        printCtx.fillStyle = bottomTextColor;
+        printCtx.font = `${textStyles.bottom.italic ? 'italic ' : ''}bold ${bottomFontSize * scale}px ${bottomFont}`;
+        drawArchedTextToPrint(printCtx, bottomText, centerX, centerY, radius - 30, false, bottomCenterH, bottomRotate, textStyles.bottom, bottomFontSize * scale, bottomFont, bottomTextColor);
+
+        // 6. Draw Center Text
+        printCtx.globalAlpha = centerTransparency;
+        printCtx.fillStyle = centerTextColor;
+        printCtx.font = `${textStyles.center.italic ? 'italic ' : ''}bold ${centerFontSize * scale}px ${centerFont}`;
+        printCtx.textAlign = centerCenterH ? "center" : "left";
+        
+        printCtx.save();
+        printCtx.translate(centerX, centerY);
+        printCtx.rotate((centerRotate * Math.PI) / 180);
+        printCtx.translate(-centerX, -centerY);
+        
+        const centerTextX = centerCenterH ? centerX : centerX - (50 * scale);
+        const centerTextY = centerCenterV ? centerY : centerY + (10 * scale);
+        
+        if (textStyles.center.shadow) {
+            printCtx.fillStyle = 'rgba(0,0,0,0.5)';
+            printCtx.fillText(centerText, centerTextX + 2, centerTextY + 2);
+        }
+        
+        printCtx.fillStyle = centerTextColor;
+        printCtx.fillText(centerText, centerTextX, centerTextY);
+        
+        if (textStyles.center.outline) {
+            printCtx.strokeStyle = 'black';
+            printCtx.lineWidth = 2;
+            printCtx.strokeText(centerText, centerTextX, centerTextY);
+        }
+        
+        printCtx.restore();
+        
+        printCtx.globalAlpha = 1.0;
+    }
+
+    function drawArchedTextToPrint(printCtx, text, cx, cy, radius, isTop, centerH, rotate, styles, fontSize, fontName, color) {
+        const characters = text.split("");
+        const anglePerChar = 0.12;
+        
+        printCtx.save();
+        printCtx.translate(cx, cy);
+        printCtx.rotate((rotate * Math.PI) / 180);
+        
+        const totalAngle = characters.length * anglePerChar;
+        let startAngle;
+        
+        if (isTop) {
+            startAngle = centerH ? totalAngle / 2 : 0;
+        } else {
+            startAngle = centerH ? -totalAngle / 2 : Math.PI;
+        }
+
+        characters.forEach((char, index) => {
+            let angle;
+            if (isTop) {
+                angle = startAngle - (index * anglePerChar);
+            } else {
+                angle = startAngle + (index * anglePerChar);
+            }
+            
+            printCtx.save();
+            printCtx.translate(Math.cos(angle) * radius, Math.sin(angle) * radius);
+            printCtx.rotate(angle + Math.PI / 2);
+            printCtx.textAlign = "center";
+            printCtx.textBaseline = "middle";
+            
+            if (styles.shadow) {
+                printCtx.fillStyle = 'rgba(0,0,0,0.5)';
+                printCtx.fillText(char, 2, 2);
+            }
+            
+            printCtx.fillStyle = color;
+            printCtx.font = `${styles.italic ? 'italic ' : ''}bold ${fontSize}px ${fontName}`;
+            printCtx.fillText(char, 0, 0);
+            
+            if (styles.outline) {
+                printCtx.strokeStyle = 'black';
+                printCtx.lineWidth = 2;
+                printCtx.strokeText(char, 0, 0);
+            }
+            
+            printCtx.restore();
+        });
+        printCtx.restore();
+    }
+
+    draw();
 </script>
 
 </body>
